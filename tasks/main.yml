@@ -1,0 +1,25 @@
+---
+# tasks file for 1mr.adduser
+- name: add user(s) with default password
+  user:
+    name: "{{ item.name }}"
+    password: "{{ item.password | default('$6$G/HPRfEYFSW9.44l$3nPyw/AS.J5a1UmYGzSuvvasYprgMymXpzBmva6SuytOhWlR/npDzZf3T0dsMJtqFUVPxi3Bm.je2hQLjptC11') }}" # packer
+    shell: /bin/bash
+    update_password: on_create
+    state: "{{ item.state | default('present') }}"
+    remove: yes
+  with_items: "{{ adduser }}"
+  when: adduser is defined and adduser
+
+- name: set change password before first login
+  command: chage -d 0 {{ item.name }}
+  with_items: "{{ adduser }}"
+  when: adduser is defined and adduser and item.reset is defined
+
+- name: add authorized_keys
+  authorized_key:
+    user: "{{ item.name }}"
+    state: present
+    key: "{{ item.authorized_keys }}"
+  with_items: "{{ adduser }}"
+  when: adduser is defined and adduser and item.authorized_keys is defined

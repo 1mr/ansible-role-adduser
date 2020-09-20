@@ -1,0 +1,5 @@
+---
+# defaults file for 1mr.adduser
+adduser:
+  - name: debian
+    state: absent
