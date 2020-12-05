@@ -18,8 +18,11 @@
 
 - name: add authorized_keys
   authorized_key:
-    user: "{{ item.name }}"
+    user: "{{ item.0.name }}"
     state: present
-    key: "{{ item.authorized_keys }}"
-  with_items: "{{ adduser }}"
-  when: adduser is defined and adduser and item.authorized_keys is defined
+    key: "{{ item.1 }}"
+  with_subelements:
+    - "{{ adduser }}"
+    - authorized_keys
+    - skip_missing: True
+  when: adduser is defined and authorized_keys is defined and item.1 is defined
